@@ -1,6 +1,6 @@
 local P, T, CG = game.Players.LocalPlayer, game:GetService("TeleportService"), game:GetService("CoreGui")
 
--- Xóa bản cũ để tránh chồng Menu
+-- Xóa bản cũ để tránh lỗi
 if CG:FindFirstChild("DatDepTraiMenu") then CG.DatDepTraiMenu:Destroy() end
 
 local G = Instance.new("ScreenGui", CG); G.Name = "DatDepTraiMenu"; G.ResetOnSpawn = false
@@ -21,37 +21,6 @@ local function Add(txt, pos, clr, fn)
     local b = Instance.new("TextButton", F); b.Text = txt; b.Size = UDim2.new(1, -20, 0, 50); b.Position = pos; b.BackgroundColor3 = clr; b.Font = "SourceSansBold"; b.TextSize = 22; b.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10); b.MouseButton1Click:Connect(fn)
 end
 
--- Chỉ giữ lại 2 nút hoạt động ổn định nhất
+-- Chỉ giữ 2 nút: Vào lại Map và Thoát Game
 Add("🔄 VÀO LẠI MAP", UDim2.new(0,10,0,20), Color3.fromRGB(0, 120, 255), function() T:Teleport(game.PlaceId, P) end)
 Add("❌ THOÁT GAME", UDim2.new(0,10,0,90), Color3.fromRGB(200, 0, 0), function() P:Kick("Thoát bởi datdeptrai!") end)
-
--- 5. Hàm tạo nút bấm
-local function Add(txt, pos, clr, fn)
-    local b = Instance.new("TextButton", F)
-    b.Text = txt
-    b.Size = UDim2.new(1, -20, 0, 50)
-    b.Position = pos
-    b.BackgroundColor3 = clr
-    b.Font = "SourceSansBold"
-    b.TextSize = 22
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.TextStrokeTransparency = 0
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
-    b.MouseButton1Click:Connect(fn)
-end
-
--- 🛠 SỬA LỖI DIE: Dùng cách xóa sạch Character Parts
-Add("💀 CHẾT & RESET", UDim2.new(0,10,0,20), Color3.fromRGB(255, 100, 0), function()
-    if P.Character then
-        -- Cách Die mạnh nhất: Xóa cái đầu hoặc xóa hết bộ phận
-        P.Character:ClearAllChildren() 
-    end
-end)
-
-Add("🔄 VÀO LẠI MAP", UDim2.new(0,10,0,85), Color3.fromRGB(0, 120, 255), function() 
-    T:Teleport(game.PlaceId, P) 
-end)
-
-Add("❌ THOÁT GAME", UDim2.new(0,10,0,150), Color3.fromRGB(200, 0, 0), function() 
-    P:Kick("Thoát bởi datdeptrai!") 
-end)
