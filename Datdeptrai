@@ -1,22 +1,13 @@
 local P, T, CG = game.Players.LocalPlayer, game:GetService("TeleportService"), game:GetService("CoreGui")
 
--- 1. Xóa bản cũ để tránh kẹt Menu
+-- Xóa bản cũ để tránh chồng Menu
 if CG:FindFirstChild("DatDepTraiMenu") then CG.DatDepTraiMenu:Destroy() end
 
-local G = Instance.new("ScreenGui", CG)
-G.Name = "DatDepTraiMenu"
-G.ResetOnSpawn = false
-
--- 2. Khung viền SIÊU TO (Viền RGB)
-local F = Instance.new("Frame", G)
-F.Size = UDim2.new(0, 240, 0, 220)
-F.Position = UDim2.new(0.5, -120, 0.2, 0)
-F.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-F.BorderSizePixel = 4
-F.Active, F.Draggable = true, true
+local G = Instance.new("ScreenGui", CG); G.Name = "DatDepTraiMenu"; G.ResetOnSpawn = false
+local F = Instance.new("Frame", G); F.Size = UDim2.new(0, 240, 0, 160); F.Position = UDim2.new(0.5, -120, 0.2, 0); F.BackgroundColor3 = Color3.fromRGB(15, 15, 15); F.BorderSizePixel = 4; F.Active, F.Draggable = true, true
 Instance.new("UICorner", F).CornerRadius = UDim.new(0, 15)
 
--- 3. Vòng lặp 7 MÀU (RGB) cho Viền
+-- Hiệu ứng viền 7 màu (RGB)
 spawn(function()
     while task.wait() do
         local hue = tick() % 5 / 5
@@ -24,16 +15,15 @@ spawn(function()
     end
 end)
 
--- 4. Nhãn tên tác giả
-local Title = Instance.new("TextLabel", F)
-Title.Text = "MENU BY: DATDEPTRAI"
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Position = UDim2.new(0, 0, 0, -35)
-Title.BackgroundTransparency = 1
-Title.TextColor3 = Color3.new(1, 1, 0)
-Title.Font = "SourceSansBold"
-Title.TextSize = 22
-Title.TextStrokeTransparency = 0
+local Title = Instance.new("TextLabel", F); Title.Text = "MENU BY: DATDEPTRAI"; Title.Size = UDim2.new(1, 0, 0, 30); Title.Position = UDim2.new(0, 0, 0, -35); Title.BackgroundTransparency = 1; Title.TextColor3 = Color3.new(1, 1, 0); Title.Font = "SourceSansBold"; Title.TextSize = 22
+
+local function Add(txt, pos, clr, fn)
+    local b = Instance.new("TextButton", F); b.Text = txt; b.Size = UDim2.new(1, -20, 0, 50); b.Position = pos; b.BackgroundColor3 = clr; b.Font = "SourceSansBold"; b.TextSize = 22; b.TextColor3 = Color3.new(1, 1, 1); Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10); b.MouseButton1Click:Connect(fn)
+end
+
+-- Chỉ giữ lại 2 nút hoạt động ổn định nhất
+Add("🔄 VÀO LẠI MAP", UDim2.new(0,10,0,20), Color3.fromRGB(0, 120, 255), function() T:Teleport(game.PlaceId, P) end)
+Add("❌ THOÁT GAME", UDim2.new(0,10,0,90), Color3.fromRGB(200, 0, 0), function() P:Kick("Thoát bởi datdeptrai!") end)
 
 -- 5. Hàm tạo nút bấm
 local function Add(txt, pos, clr, fn)
