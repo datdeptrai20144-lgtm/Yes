@@ -1,0 +1,16 @@
+local P, T, CG = game.Players.LocalPlayer, game:GetService("TeleportService"), game:GetService("CoreGui")
+
+if CG:FindFirstChild("DatDepTraiMenu") then CG.DatDepTraiMenu:Destroy() end
+local G = Instance.new("ScreenGui", CG); G.Name = "DatDepTraiMenu"; G.ResetOnSpawn = false
+local F = Instance.new("Frame", G); F.Size = UDim2.new(0, 240, 0, 220); F.Position = UDim2.new(0.5, -120, 0.2, 0); F.BackgroundColor3 = Color3.fromRGB(15, 15, 15); F.BorderSizePixel = 4; F.BorderColor3 = Color3.fromRGB(255, 255, 0); F.Active, F.Draggable = true, true
+Instance.new("UICorner", F).CornerRadius = UDim.new(0, 15)
+
+local Title = Instance.new("TextLabel", F); Title.Text = "MENU BY: DATDEPTRAI"; Title.Size = UDim2.new(1, 0, 0, 30); Title.Position = UDim2.new(0, 0, 0, -35); Title.BackgroundTransparency = 1; Title.TextColor3 = Color3.new(1, 1, 0); Title.Font = "SourceSansBold"; Title.TextSize = 22
+
+local function Add(txt, pos, clr, fn)
+    local b = Instance.new("TextButton", F); b.Text = txt; b.Size = UDim2.new(1, -20, 0, 50); b.Position = pos; b.BackgroundColor3 = clr; b.Font = "SourceSansBold"; b.TextSize = 22; b.TextColor3 = Color3.new(1, 1, 1); b.TextStrokeTransparency = 0; Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10); b.MouseButton1Click:Connect(fn)
+end
+
+Add("💀 CHẾT & RESET", UDim2.new(0,10,0,20), Color3.fromRGB(255, 100, 0), function() if P.Character then P.Character:BreakJoints() end end)
+Add("🔄 VÀO LẠI MAP", UDim2.new(0,10,0,85), Color3.fromRGB(0, 120, 255), function() T:Teleport(game.PlaceId, P) end)
+Add("❌ THOÁT GAME", UDim2.new(0,10,0,150), Color3.fromRGB(200, 0, 0), function() P:Kick("Thoát bởi datdeptrai!") end)
