@@ -1,0 +1,128 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local lp = Players.LocalPlayer
+local targetPart = nil -- Vật thể sẽ di chuyển (mặc định là Character của bạn nếu bạn muốn tự bay)
+local targetPlayer = nil
+local speed = 100
+local isFollowing = false
+
+-- --- TẠO GIAO DIỆN (GUI) ---
+local screenGui = Instance.new("ScreenGui", lp.PlayerGui)
+screenGui.Name = "CompactFollowMenu"
+
+local mainFrame = Instance.new("Frame", screenGui)
+mainFrame.Size = UDim2.new(0, 200, 0, 250)
+mainFrame.Position = UDim2.new(0, 20, 0.5, -125)
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true -- Bạn có thể nắm kéo menu đi chỗ khác
+
+local title = Instance.new("TextLabel", mainFrame)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "FOLLOW MENU"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+-- Ô nhập tốc độ
+local speedInput = Instance.new("TextBox", mainFrame)
+speedInput.Size = UDim2.new(0.9, 0, 0, 30)
+speedInput.Position = UDim2.new(0.05, 0, 0.15, 0)
+speedInput.PlaceholderText = "Tốc độ (1-1000)..."
+speedInput.Text = "100"
+speedInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+speedInput.TextColor3 = Color3.new(1, 1, 1)
+
+speedInput.FocusLost:Connect(function()
+	local val = tonumber(speedInput.Text)
+	if val then
+		speed = math.clamp(val, 1, 1000)
+		speedInput.Text = tostring(speed)
+	else
+		speedInput.Text = tostring(speed)
+	end
+end)
+
+-- Danh sách người chơi
+local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
+scrollFrame.Size = UDim2.new(0.9, 0, 0.6, 0)
+scrollFrame.Position = UDim2.new(0.05, 0, 0.35, 0)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+scrollFrame.ScrollBarThickness = 4
+
+local uiList = Instance.new("UIListLayout", scrollFrame)
+uiList.SortOrder = Enum.SortOrder.Name
+
+-- Nút dừng lại
+local stopBtn = Instance.new("TextButton", mainFrame)
+stopBtn.Size = UDim2.new(1, 0, 0, 25)
+stopBtn.Position = UDim2.new(0, 0, 0.9, 0)
+stopBtn.Text = "STOP"
+stopBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+stopBtn.TextColor3 = Color3.new(1, 1, 1)
+
+stopBtn.MouseButton1Click:Connect(function()
+	isFollowing = false
+	targetPlayer = nil
+	print("Đã dừng đuổi theo")
+end)
+
+-- --- LOGIC CẬP NHẬT DANH SÁCH ---
+local function updateList()
+	for _, v in pairs(scrollFrame:GetChildren()) do
+		if v:IsA("TextButton") then v:Destroy() end
+	end
+	
+	for _, p in pairs(Players:GetPlayers()) do
+		if p ~= lp then
+			local btn = Instance.new("TextButton", scrollFrame)
+			btn.Size = UDim2.new(1, -5, 0, 25)
+			btn.Text = p.Name
+			btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+			btn.TextColor3 = Color3.new(1, 1, 1)
+			
+			btn.MouseButton1Click:Connect(function()
+				targetPlayer = p
+				isFollowing = true
+				print("Đang đuổi theo: " .. p.Name)
+			end)
+		end
+	end
+	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * 25)
+end
+
+Players.PlayerAdded:Connect(updateList)
+Players.PlayerRemoving:Connect(updateList)
+updateList()
+
+-- --- LOGIC DI CHUYỂN XUYÊN TƯỜNG ---
+RunService.Stepped:Connect(function(dt)
+	if isFollowing and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+		local myChar = lp.Character
+		if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+			local hrp = myChar.HumanoidRootPart
+			local targetHrp = targetPlayer.Character.HumanoidRootPart
+			
+			-- Bật chế độ xuyên tường (Noclip)
+			for _, part in pairs(myChar:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = false
+				end
+			end
+			
+			-- Tính toán di chuyển (Tween thủ công bằng CFrame để cập nhật liên tục)
+			local currentPos = hrp.Position
+			local targetPos = targetHrp.Position
+			local direction = (targetPos - currentPos).Unit
+			local distance = (targetPos - currentPos).Magnitude
+			
+			if distance > 2 then -- Giữ khoảng cách nhỏ để không bị lồng vào nhau
+				local moveStep = math.min(distance, speed * dt)
+				hrp.CFrame = CFrame.new(currentPos + (direction * moveStep), targetPos)
+			end
+		end
+	end
+end)
